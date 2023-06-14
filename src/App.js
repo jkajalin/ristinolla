@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Button = ({handleClick, text}) => (
   <button onClick={handleClick}>
@@ -19,18 +19,56 @@ const App = () => {
     ['1','2','3'],
     ['4','5','6'],
     ['7','8','9'] 
-  ] 
+  ]
+  
+  const [ playfield, setPlayfield ] = useState(gamefield)
 
   const setCross = () => {
     setUserPawn('x')
-    setHostPawn('0')
+    setHostPawn('0')    
   }
 
   const setZero = () => {
     setUserPawn('0')
-    setHostPawn('x')
+    setHostPawn('x')    
   }
 
+  const markMove = async ( field ) => {
+    field = userPawn    
+    console.log(field)
+    
+    //return field
+  }
+
+  const drawMove = async ( field ) => {
+    await markMove( field )
+    field=userPawn
+    setPlayfield(field)
+  }
+
+  const handleMove = (  i1 , i2  ) => {
+    console.log(`user pawn ${userPawn}`)
+    if(gamefield[i1][i2] === 'x' && gamefield[i1][i2] === '0'){
+      console.log(`ruutu varattu`)
+
+    }else{
+      console.log(`ruutu vapaa`)
+      gamefield[i1][i2]= userPawn
+    }
+    
+    console.log(`new field ${gamefield[i1][i2]}`)
+    setPlayfield(gamefield)
+    
+    
+  }
+
+  
+  const DrawPlayfield = () => {
+    
+    return playfield.map( (p,i) => <div key={i}> {p[0]}, {p[1]}, {p[2]} </div> )
+  }
+
+  
   return (
     <div>
       <p>   
@@ -51,11 +89,16 @@ const App = () => {
       
       <p>Pelikenttä</p>
       <div>
-      <div><Button handleClick={ () => foobar() } text={gamefield[0][0]} /><Button handleClick={ () => foobar() } text={gamefield[0][1]} /><Button handleClick={ () => foobar() } text={gamefield[0][2]} /></div>
-      <div><Button handleClick={ () => foobar() } text={gamefield[1][0]} /><Button handleClick={ () => foobar() } text={gamefield[1][1]} /><Button handleClick={ () => foobar() } text={gamefield[1][2]} /></div>
-      <div><Button handleClick={ () => foobar() } text={gamefield[2][0]} /><Button handleClick={ () => foobar() } text={gamefield[2][1]} /><Button handleClick={ () => foobar() } text={gamefield[2][2]} /></div>    
+        <div><Button handleClick={ () =>  handleMove( 0, 0 ) } text={playfield[0][0]} /><Button handleClick={ () => foobar() } text={gamefield[0][1]} /><Button handleClick={ () => foobar() } text={gamefield[0][2]} /></div>
+        <div><Button handleClick={ () => foobar() } text={gamefield[1][0]} /><Button handleClick={ () => foobar() } text={gamefield[1][1]} /><Button handleClick={ () => foobar() } text={gamefield[1][2]} /></div>
+        <div><Button handleClick={ () => foobar() } text={gamefield[2][0]} /><Button handleClick={ () => foobar() } text={gamefield[2][1]} /><Button handleClick={ () => foobar() } text={gamefield[2][2]} /></div>    
       </div>      
-
+      <p>playfield string: { String(playfield) }</p>
+      <p>gamefield at [0,0]: { String(gamefield[0][0]) }</p>
+      <p>whole gamefield:</p>
+      { String(gamefield) }
+      <p>display:</p>
+      <DrawPlayfield />
     </div>
   );
 }
