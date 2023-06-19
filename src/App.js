@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
 
+
+let gamefield = [ 
+  ['1','2','3'],
+  ['4','5','6'],
+  ['7','8','9'] 
+]
+
 const Button = ({handleClick, text}) => (
   <button onClick={handleClick}>
     {text}
@@ -10,19 +17,75 @@ const foobar = () => {
   console.log('foobar')
 }
 
+const DrawPlayfield = ( {playfield} ) => {
+  //console.log(playfield)
+  if(playfield){
+    return playfield.map( (p,i) => <div key={i}> {p[0]}, {p[1]}, {p[2]} </div> )
+  }else{
+    return ''
+  }
+  
+}
+
+
+
+const ButtonGamefield = ( {handleMove, playfield} ) => {
+  
+  return <>
+  { !playfield ? 'exist' : 'or does it' }
+  { !playfield ? 'shit' : 
+    <>
+    <p>Pelikenttä</p>
+    <div>
+      <div><Button handleClick={ () => handleMove( 0, 0 ) } text={playfield[0][0]} /><Button handleClick={ () => handleMove( 0, 1 ) } text={playfield[0][1]} /><Button handleClick={ () => handleMove( 0, 2 ) } text={playfield[0][2]} /></div>
+      <div><Button handleClick={ () => handleMove( 1, 0 ) } text={playfield[1][0]} /><Button handleClick={ () => handleMove( 1, 1 ) } text={playfield[1][1]} /><Button handleClick={ () => handleMove( 1, 2 ) } text={playfield[1][2]} /></div>
+      <div><Button handleClick={ () => handleMove( 2, 0 ) } text={playfield[2][0]} /><Button handleClick={ () => handleMove( 2, 1 ) } text={playfield[2][1]} /><Button handleClick={ () => handleMove( 2, 2 ) } text={playfield[2][2]} /></div>    
+    </div>      
+    <p>playfield string: { String(playfield) }</p>
+  </> 
+    }   
+      
+  </>
+}
+
+const GameBoard = ( { playfield, handleMove } ) => {
+  
+  if( !playfield ) {
+    return 'loading...'
+  }else{
+    return (      
+      <>
+        
+        <ButtonGamefield handleMove={handleMove} playfield={playfield} />
+
+        <p>display:</p>
+        <DrawPlayfield playfield={playfield} />
+
+        <p>gamefield at [0,0]: { String(gamefield[0][0]) }</p>
+        <p>whole gamefield:</p>
+        { String(gamefield) }
+      </>
+    )
+  }
+
+}
+
 const App = () => {
 
   const [ userPawn, setUserPawn ] = useState('')
-  const [ hostPawn, setHostPawn ] = useState('')
-
-  let gamefield = [ 
-    ['1','2','3'],
-    ['4','5','6'],
-    ['7','8','9'] 
-  ]
+  const [ hostPawn, setHostPawn ] = useState('')  
   
   const [ playfield, setPlayfield ] = useState(gamefield)
 
+  const [ count, setCount ] = useState(0)
+
+  useEffect( () =>{
+    setCount( count+1 )
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playfield])
+
+  console.log('count',count)
+  
   const setCross = () => {
     setUserPawn('x')
     setHostPawn('0')    
@@ -33,44 +96,52 @@ const App = () => {
     setHostPawn('x')    
   }
 
-  const markMove = async ( field ) => {
-    field = userPawn    
-    console.log(field)
-    
-    //return field
+  const updateGamefield = async () => {
+    console.log(`playfield:` ,String(playfield))
+    gamefield = playfield
   }
 
-  const drawMove = async ( field ) => {
-    await markMove( field )
-    field=userPawn
-    setPlayfield(field)
-  }
+  const move = async (  i1 , i2  ) => {
+    console.log(`user pawn ${userPawn}`)    
 
-  const handleMove = (  i1 , i2  ) => {
-    console.log(`user pawn ${userPawn}`)
-    if(gamefield[i1][i2] === 'x' && gamefield[i1][i2] === '0'){
+    await updateGamefield()
+
+    const newplayfield = gamefield.slice()
+    if( String(playfield[i1][i2]) === 'x' || String(playfield[i1][i2]) === '0'){
       console.log(`ruutu varattu`)
+      
 
     }else{
       console.log(`ruutu vapaa`)
-      gamefield[i1][i2]= userPawn
+      newplayfield[i1][i2]= userPawn
     }
     
     console.log(`new field ${gamefield[i1][i2]}`)
-    setPlayfield(gamefield)
     
-    
+    setPlayfield( newplayfield )
   }
 
+  const handleMove = async (  i1 , i2  ) => {
+      
+    await move( i1, i2 )
+    await updateGamefield()
+    
+    console.log('updated gamefield: ', String(gamefield) )
+  }
   
-  const DrawPlayfield = () => {
-    
-    return playfield.map( (p,i) => <div key={i}> {p[0]}, {p[1]}, {p[2]} </div> )
-  }
 
+  /*
+  useEffect( () => {
+      updateGamefield()
+      
+    },
+    [playfield, updateGamefield] 
+  )
+  */ 
   
   return (
     <div>
+      <p>count: {count} </p>
       <p>   
       <Button handleClick={ () => foobar() } text={'foobar'} />
       </p>
@@ -86,19 +157,10 @@ const App = () => {
         </div>
         
       }
+      <GameBoard playfield={playfield} handleMove={handleMove} />
       
-      <p>Pelikenttä</p>
-      <div>
-        <div><Button handleClick={ () =>  handleMove( 0, 0 ) } text={playfield[0][0]} /><Button handleClick={ () => foobar() } text={gamefield[0][1]} /><Button handleClick={ () => foobar() } text={gamefield[0][2]} /></div>
-        <div><Button handleClick={ () => foobar() } text={gamefield[1][0]} /><Button handleClick={ () => foobar() } text={gamefield[1][1]} /><Button handleClick={ () => foobar() } text={gamefield[1][2]} /></div>
-        <div><Button handleClick={ () => foobar() } text={gamefield[2][0]} /><Button handleClick={ () => foobar() } text={gamefield[2][1]} /><Button handleClick={ () => foobar() } text={gamefield[2][2]} /></div>    
-      </div>      
-      <p>playfield string: { String(playfield) }</p>
-      <p>gamefield at [0,0]: { String(gamefield[0][0]) }</p>
-      <p>whole gamefield:</p>
-      { String(gamefield) }
-      <p>display:</p>
-      <DrawPlayfield />
+      
+     
     </div>
   );
 }
