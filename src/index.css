@@ -5,9 +5,25 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: black;
+  color: greenyellow;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+button {
+  background: black;
+  color: greenyellow;
+}
+
+.squareBtn {
+  border: 1px solid gray;
+  background: black;
+  color: greenyellow;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
 }
