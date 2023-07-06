@@ -81,7 +81,7 @@ const App = () => {
   const [ playfield, setPlayfield ] = useState(gamefield)
   const [ moveHistory, setMoveHistory ] = useState( [] )
   
-  let history = []  
+  let newMovesHistory = []  
   let hostTurn = false  
 
   const [ count, setCount ] = useState(0)
@@ -120,18 +120,24 @@ const App = () => {
     console.log('set host turn: ', hostTurn)
   }
 
-  const setHistory = async ( h ) => {
-    history=h
+  const saveNewMovesHistory = async ( h ) => {
+    newMovesHistory=h
     //setMoveHistory( h )
   } 
-  const getHistory = () => history
+
+  //const getHistory = () => newMovesHistory
 
   const updateGamefield = async () => {
     console.log(`playfield:` ,String(playfield))
     gamefield = playfield    
   }
 
-  // places move of current player
+  /*
+  * Places move of current player and handle history logic
+  * IC: ( i1 <=2 && i2 <=2 ) && pawn != null
+  *    
+  */
+
   const move = async (  i1 , i2, pawn ) => {
     console.log(`user pawn ${userPawn}`)    
 
@@ -153,23 +159,24 @@ const App = () => {
       }
 
       // setMoveHistory( [ ...moveHistory, [i1,i2, pawn] ])      
-      //setMoveHistory( moveHistory.concat([[i1,i2, pawn]]) )
-      //await setHistory( history.concat([[i1,i2, pawn]]) )      
-      //setMoveHistory( history.concat([[i1,i2, pawn]]) )
+      // setMoveHistory( moveHistory.concat([[i1,i2, pawn]]) )
+      // await setHistory( history.concat([[i1,i2, pawn]]) )      
+      // setMoveHistory( history.concat([[i1,i2, pawn]]) )
 
       //history= history.concat([[i1,i2, pawn]])
-      await setHistory( history.concat([[i1,i2, pawn]]) )
+      console.log('NewMovesHistory berofe: ', String(newMovesHistory))      
+      await saveNewMovesHistory( newMovesHistory.concat([[i1,i2, pawn]]) ) // this works    
 
       console.log(`move ${gamefield[i1][i2]} to`, i1, i2 )
-      console.log('Another History:', String(history) )
+      console.log('NewMoves History:', String(newMovesHistory) )
       
     }  
-    console.log('Before MoveHistory:', String(moveHistory) )
-    setMoveHistory( history.concat(moveHistory)  ) // this works \ o /
+    console.log('MoveHistory Before:', String(moveHistory) )
+    setMoveHistory( newMovesHistory.concat(moveHistory)  ) // this works \ o /
     
     setPlayfield( newplayfield )
-    console.log('Another History, again:', String(history) )
-    console.log('MoveHistory:', String(moveHistory) )
+    console.log('NewMoves History, again:', String(newMovesHistory) )
+    console.log('MoveHistory again:', String(moveHistory) )
   }
 
   const checkWinnerLines = async () => {
@@ -210,6 +217,12 @@ const App = () => {
     }
   }
 
+  
+  /*
+  * pass player move and fire some game logic
+  * IC: ( i1 <=2 && i2 <=2 )  
+  */
+
   const handleMove = async (  i1 , i2  ) => {
     
     console.log('handlemove, hostTurn:', isHostTurn() )
@@ -232,7 +245,10 @@ const App = () => {
     console.log('updated gamefield: ', String(gamefield) )
   }
 
-  // does line has two checks // some host player move logic
+  /*
+  * does line has two matching pawns // some host player move logic
+  * IC: userPawn != null
+  */
   const hasTwoInLine = async () => {
     
     console.log('handTwoInLine, hostTurn:', isHostTurn() )
@@ -254,6 +270,7 @@ const App = () => {
           isMiddleFree = true
           //moveHost(0,1)
           if( isHostTurn() ){
+            console.log('first row middle')
             await moveHost(0,1)
           }
         }
@@ -261,9 +278,10 @@ const App = () => {
           //moveHost(0,1)
         }
       }else{
+        console.log('first row else')        
         await moveHost(0,1)
       }      
-      await moveHost(0,1)
+      //await moveHost(0,1)
     }
     // if( isHostTurn() && ( playfield[1][0]===userPawn || playfield[1][2]===userPawn ) && ( playfield[1][0] === playfield[1][2] || playfield[1][0] === playfield[1][1] || playfield[1][1] === playfield[1][2]) )
     if( isHostTurn() && ( playfield[1][0]===userPawn || playfield[1][2]===userPawn )  ){
@@ -278,6 +296,9 @@ const App = () => {
           if( isHostTurn() ){
             await moveHost(1,1)
           }
+        }
+        if( isHostTurn() && playfield[1][1] === userPawn && playfield[1][2] === userPawn ){
+          await moveHost( 1, 0 )
         }
       }
       //await moveHost(1,1)
@@ -369,9 +390,16 @@ const App = () => {
           await moveHost( 2, 2 )
         )   
         
-      }      
-
+      }
+    }else{
+      console.log('last column else')
+      if( isHostTurn() && playfield[1][2] === userPawn ){
+        await moveHost( 0, 2 )
+      }else(
+        await moveHost( 2, 2 )
+      ) 
     }
+
     // crossing lines // no any effect with additional definitions
     //
     console.log('cross lines')    
@@ -448,7 +476,7 @@ const App = () => {
       }
       <GameBoard playfield={playfield} handleMove={handleMove} />
       <br /><br />
-      Another history: { String(history) }
+      NewMoves history: { String(newMovesHistory) }
     </div>
   );
 }
