@@ -1,24 +1,21 @@
 import { useEffect, useState } from "react";
 
+// gamefield arrays filled with initial values
+let gamefield = [ Array(3).fill(null), Array(3).fill(null), Array(3).fill(null) ]
 
-let gamefield = [ 
-  Array(3).fill(null),
-  Array(3).fill(null),
-  Array(3).fill(null) 
-]
-
-const Button = ({handleClick, text}) => (
-  <button onClick={handleClick}>
+const Button = ( {handleClick, text} ) => (
+  <button onClick={ handleClick }>
     {text}
   </button>
 )
 
-const SquareButton = ({handleClick, text}) => (
-  <button onClick={handleClick} className="squareBtn">
+const SquareButton = ( {handleClick, text} ) => (
+  <button onClick={ handleClick } className="squareBtn">
     {text}
   </button>
 )
 
+/*
 const DrawPlayfield = ( {playfield} ) => {
   //console.log(playfield)
   if(playfield){
@@ -27,6 +24,7 @@ const DrawPlayfield = ( {playfield} ) => {
     return ''
   }  
 }
+*/
 
 const ButtonGamefield = ( {handleMove, playfield} ) => {
   
@@ -38,9 +36,7 @@ const ButtonGamefield = ( {handleMove, playfield} ) => {
       <div><SquareButton handleClick={ () => handleMove( 0, 0 ) } text={playfield[0][0]} /><SquareButton handleClick={ () => handleMove( 0, 1 ) } text={playfield[0][1]} /><SquareButton handleClick={ () => handleMove( 0, 2 ) } text={playfield[0][2]} /></div>
       <div><SquareButton handleClick={ () => handleMove( 1, 0 ) } text={playfield[1][0]} /><SquareButton handleClick={ () => handleMove( 1, 1 ) } text={playfield[1][1]} /><SquareButton handleClick={ () => handleMove( 1, 2 ) } text={playfield[1][2]} /></div>
       <div><SquareButton handleClick={ () => handleMove( 2, 0 ) } text={playfield[2][0]} /><SquareButton handleClick={ () => handleMove( 2, 1 ) } text={playfield[2][1]} /><SquareButton handleClick={ () => handleMove( 2, 2 ) } text={playfield[2][2]} /></div>    
-    </div>      
-    <p>playfield string: { String(playfield) }</p>
-    
+    </div>
   </> 
     }   
       
@@ -48,7 +44,7 @@ const ButtonGamefield = ( {handleMove, playfield} ) => {
 }
 
 const GameHistory = ( { gameHistory } ) => {
-  return <div style={{float: "right"}}>{ !gameHistory? '' : gameHistory.map( ( p, i ) => <div key={i} > { p[0]  }-{p[1]}-{p[2]} ;  </div>  ) }</div>
+  return <div style={{float: "right"}}>{ !gameHistory? '' : gameHistory.map( ( p, i ) => <div key={i} > { p[0] }-{ p[1] }: { p[2] } ;  </div>  ) }</div>
 }
 
 const GameBoard = ( { playfield, handleMove } ) => {
@@ -57,16 +53,8 @@ const GameBoard = ( { playfield, handleMove } ) => {
     return 'loading...'
   }else{
     return (      
-      <>
-        
+      <>        
         <ButtonGamefield handleMove={handleMove} playfield={playfield} />
-
-        <p>display:</p>
-        <DrawPlayfield playfield={playfield} />
-
-        <p>gamefield at [0,0]: { String(gamefield[0][0]) }</p>
-        <p>whole gamefield:</p>
-        { String(gamefield) }
       </>
     )
   }
@@ -172,7 +160,8 @@ const App = () => {
       
     }  
     console.log('MoveHistory Before:', String(moveHistory) )
-    setMoveHistory( newMovesHistory.concat(moveHistory)  ) // this works \ o /
+    //setMoveHistory( newMovesHistory.concat(moveHistory)  ) // this works \ o /
+    setMoveHistory( moveHistory.concat(newMovesHistory) )
     
     setPlayfield( newplayfield )
     console.log('NewMoves History, again:', String(newMovesHistory) )
@@ -239,6 +228,7 @@ const App = () => {
           console.log('Game Over! Refresh page to start new game')
         }
       }
+      await checkWinnerLines()
     }  
     
      
@@ -257,7 +247,7 @@ const App = () => {
 
     console.log('rows')
     // rows    
-    //
+    // row 1
     // isHostTurn() &&    
     if( isHostTurn() && ( playfield[0][0] === userPawn || playfield[0][2]===userPawn ) ){
       //console.log('first line')
@@ -274,15 +264,20 @@ const App = () => {
             await moveHost(0,1)
           }
         }
-        if( playfield[0][1] !== userPawn ){
+        if( isHostTurn() && playfield[0][1] !== userPawn ){
           //moveHost(0,1)
         }
       }else{
-        console.log('first row else')        
-        await moveHost(0,1)
+        
+        if( isHostTurn() ){
+          console.log('first row else')
+          await moveHost(0,1)
+        }        
+        
       }      
       //await moveHost(0,1)
     }
+    // row 2
     // if( isHostTurn() && ( playfield[1][0]===userPawn || playfield[1][2]===userPawn ) && ( playfield[1][0] === playfield[1][2] || playfield[1][0] === playfield[1][1] || playfield[1][1] === playfield[1][2]) )
     if( isHostTurn() && ( playfield[1][0]===userPawn || playfield[1][2]===userPawn )  ){
       
@@ -300,30 +295,37 @@ const App = () => {
         if( isHostTurn() && playfield[1][1] === userPawn && playfield[1][2] === userPawn ){
           await moveHost( 1, 0 )
         }
+        if( isHostTurn() && playfield[1][1] === userPawn && playfield[1][0] === userPawn ){
+          await moveHost( 1, 2 )
+        }
       }
       //await moveHost(1,1)
-    }
-    if( isHostTurn() && ( playfield[2][0] === userPawn || playfield[2][2] === userPawn ) && ( playfield[2][0] === playfield[2][2] || playfield[2][0] === playfield[2][1] || playfield[2][1] === playfield[2][2] ) ){
+    }        
+    // row 3
+    if( isHostTurn() && ( playfield[2][0] === userPawn || playfield[2][2] === userPawn )  ){
       
       linecordinates = [2,0,2,2]
       console.log('linecordinates: ', String( linecordinates ))
       
-      if( playfield[2][0] === playfield[2][2] ){
-        isMiddleFree = true
-        if( isHostTurn() ){
-          await moveHost(2,1)
-        }
-      }
-      // idiot proofing
-      if ( playfield[2][0] === userPawn && playfield[2][0] === userPawn ){
-        await moveHost( 2,2 )
-      }
+      if( playfield[2][0] === playfield[2][2] || playfield[2][0] === playfield[2][1] || playfield[2][1] === playfield[2][2] ){
 
+        if( playfield[2][0] === playfield[2][2] ){
+          isMiddleFree = true
+          if( isHostTurn() ){
+            await moveHost(2,1)
+          }          
+        }
+  
+        // idiot proofing
+        if ( playfield[2][0] === userPawn && playfield[2][0] === userPawn ){
+          await moveHost( 2,2 )
+        }
+      } 
 
     }
     console.log('columns')
     // columns
-    //
+    // column 1
     if( isHostTurn() && ( playfield[0][0] === userPawn || playfield[2][0]===userPawn )  ){
       
       linecordinates = [0,0,2,0]
@@ -350,6 +352,7 @@ const App = () => {
       }
 
     }
+    // column 2
     // if( isHostTurn() && ( playfield[0][1]===userPawn || playfield[2][1]===userPawn ) && ( playfield[0][1] === playfield[2][1] || playfield[0][1] === playfield[1][1] || playfield[1][1] === playfield[2][1] ) )
     if( isHostTurn() && ( playfield[0][1]===userPawn || playfield[2][1]===userPawn ) ){
       
@@ -364,12 +367,20 @@ const App = () => {
             await moveHost(1,1)
           }
         }
+        if( isHostTurn() && playfield[0][1] === userPawn && playfield[1][1] === userPawn ){
+          await moveHost( 2, 1 )
+        }
+
       }
       if( isHostTurn() && playfield[0][1]===userPawn ){
         await moveHost( 1, 1 )
       }
+      if( isHostTurn() && playfield[1][1]===userPawn && playfield[2][1]===userPawn){
+        await moveHost( 0, 1 )
+      }
 
     }
+    // column 3
     if( isHostTurn() && ( playfield[0][2] === userPawn || playfield[2][2] === userPawn ) ){
       
       linecordinates = [0,2,2,2]
@@ -388,7 +399,10 @@ const App = () => {
           await moveHost( 0, 2 )
         }else(
           await moveHost( 2, 2 )
-        )   
+        )
+        if( isHostTurn() && playfield[0][2] === hostPawn && ( playfield[1][1] !=='x' || playfield[1][1] !=='0') ){
+          await moveHost( 1, 1 )
+        }   
         
       }
     }else{
@@ -418,7 +432,9 @@ const App = () => {
       if( isHostTurn() && playfield[0][0] === userPawn && playfield[1][1] === userPawn ){
         await moveHost(2,2)
       }
-
+      if( isHostTurn() && playfield[2][2] === userPawn && playfield[1][1] === userPawn ){
+        await moveHost(0,0)
+      }
     }
     //     if( isHostTurn() && ( playfield[0][2] === userPawn || playfield[2][0] === userPawn ) && ( playfield[0][2] === playfield[2][0] || playfield[0][2] === playfield[1][1] || playfield[1][1] === playfield[2][0] ) )
     if( isHostTurn() && ( playfield[0][2] === userPawn || playfield[2][0] === userPawn )  ){
@@ -441,6 +457,20 @@ const App = () => {
       }
 
     }
+    // random cases
+    if( isHostTurn() && playfield[2][0] === playfield[2][2] && playfield[2][0] === hostPawn && playfield[2][1] === userPawn ){
+      if( playfield[1][1] !=='x' || playfield[1][1] !=='0' ){
+        await moveHost(1,1)
+      }
+      if( isHostTurn() && ( playfield[1][1] ==='x' || playfield[1][1] ==='0' ) ){
+        await moveHost(1,0)
+      }
+    }
+    // row 2 random case
+    if ( isHostTurn() && ( playfield[1][1]===userPawn ) && playfield[1][0] === playfield[1][2] && playfield[2][2]===hostPawn && playfield[1][2] !== userPawn ){
+      console.log('row 2 random case')
+      await moveHost( 1, 2 )
+    }
 
     //console.log('linecordinates: ', String( linecordinates ))
     if(isMiddleFree){
@@ -454,6 +484,20 @@ const App = () => {
     }else(
       console.log('aint host turn')
     )
+  }
+
+  /*
+  * Init new game and start game with initial values
+  */
+  const initNewGame = () => {
+    gamefield = [ Array(3).fill(null), Array(3).fill(null), Array(3).fill(null) ]
+    setPlayfield( gamefield )
+    setMoveHistory([])
+    newMovesHistory = []
+    setWinner('')
+    setHostTurn(false)
+    setUserPawn('')
+    setHostPawn('') 
   }
   
   return (
@@ -475,8 +519,8 @@ const App = () => {
         
       }
       <GameBoard playfield={playfield} handleMove={handleMove} />
-      <br /><br />
-      NewMoves history: { String(newMovesHistory) }
+      <br />
+      <Button handleClick={ () => initNewGame() } text={'Restart game'} />
     </div>
   );
 }
