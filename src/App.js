@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 
 // gamefield arrays filled with initial values
-let gamefield = [ Array(3).fill(null), Array(3).fill(null), Array(3).fill(null) ]
+let gamefield = [ 
+  Array(3).fill(null),
+  Array(3).fill(null),
+  Array(3).fill(null) 
+]
 
 const Button = ( {handleClick, text} ) => (
   <button onClick={ handleClick }>
@@ -31,12 +35,12 @@ const ButtonGamefield = ( {handleMove, playfield} ) => {
   return <>  
   { !playfield ? 'buttonfield - loading...' : 
     <>
-    <p>Pelikenttä</p>
-    <div>
-      <div><SquareButton handleClick={ () => handleMove( 0, 0 ) } text={playfield[0][0]} /><SquareButton handleClick={ () => handleMove( 0, 1 ) } text={playfield[0][1]} /><SquareButton handleClick={ () => handleMove( 0, 2 ) } text={playfield[0][2]} /></div>
-      <div><SquareButton handleClick={ () => handleMove( 1, 0 ) } text={playfield[1][0]} /><SquareButton handleClick={ () => handleMove( 1, 1 ) } text={playfield[1][1]} /><SquareButton handleClick={ () => handleMove( 1, 2 ) } text={playfield[1][2]} /></div>
-      <div><SquareButton handleClick={ () => handleMove( 2, 0 ) } text={playfield[2][0]} /><SquareButton handleClick={ () => handleMove( 2, 1 ) } text={playfield[2][1]} /><SquareButton handleClick={ () => handleMove( 2, 2 ) } text={playfield[2][2]} /></div>    
-    </div>
+      <p>Pelikenttä</p>
+      <div>
+        <div className="row"><SquareButton handleClick={ () => handleMove( 0, 0 ) } text={playfield[0][0]} /><SquareButton handleClick={ () => handleMove( 0, 1 ) } text={playfield[0][1]} /><SquareButton handleClick={ () => handleMove( 0, 2 ) } text={playfield[0][2]} /></div>
+        <div className="row"><SquareButton handleClick={ () => handleMove( 1, 0 ) } text={playfield[1][0]} /><SquareButton handleClick={ () => handleMove( 1, 1 ) } text={playfield[1][1]} /><SquareButton handleClick={ () => handleMove( 1, 2 ) } text={playfield[1][2]} /></div>
+        <div className="row"><SquareButton handleClick={ () => handleMove( 2, 0 ) } text={playfield[2][0]} /><SquareButton handleClick={ () => handleMove( 2, 1 ) } text={playfield[2][1]} /><SquareButton handleClick={ () => handleMove( 2, 2 ) } text={playfield[2][2]} /></div>    
+      </div>
   </> 
     }   
       
@@ -68,6 +72,7 @@ const App = () => {
   const [ winner, setWinner ] = useState('')  
   const [ playfield, setPlayfield ] = useState(gamefield)
   const [ moveHistory, setMoveHistory ] = useState( [] )
+  const [ msg, setMsg ] = useState('')
   
   let newMovesHistory = []  
   let hostTurn = false  
@@ -78,6 +83,8 @@ const App = () => {
     setCount( count+1 )
     if(winner){
       console.log( 'winner is ', winner )
+      //setMsg('winner is ', winner )
+      //alert('Winner is ', winner)
     }
     
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -226,8 +233,13 @@ const App = () => {
         // check history length
         if( moveHistory.length >= 8 ){
           console.log('Game Over! Refresh page to start new game')
+          alert('Game Over! Refresh page to start new game')
         }
+      }else{
+        setMsg('winner:', winner)
+        alert('winner:', winner)
       }
+
       await checkWinnerLines()
     }  
     
@@ -267,9 +279,15 @@ const App = () => {
         if( isHostTurn() && playfield[0][1] !== userPawn ){
           //moveHost(0,1)
         }
+        if( isHostTurn() && playfield[0][0] === userPawn && playfield[0][1] === userPawn){
+          await moveHost( 0, 2 )
+        }
+        if( isHostTurn() && playfield[0][2] === userPawn && playfield[0][1] === userPawn){
+          await moveHost( 0, 0 )
+        }
       }else{
         
-        if( isHostTurn() ){
+        if( isHostTurn() && moveHistory.length < 3){
           console.log('first row else')
           await moveHost(0,1)
         }        
@@ -321,7 +339,9 @@ const App = () => {
           await moveHost( 2,2 )
         }
       } 
-
+      if( isHostTurn() && moveHistory.length <2){
+        await moveHost( 1, 1 )
+      } 
     }
     console.log('columns')
     // columns
@@ -456,6 +476,9 @@ const App = () => {
         await moveHost( 0,2 )
       }
 
+    }
+    if( isHostTurn() && ( playfield[1][1] === hostPawn || playfield[0][2] === hostPawn )  ){
+      await moveHost( 2,0 )
     }
     // random cases
     if( isHostTurn() && playfield[2][0] === playfield[2][2] && playfield[2][0] === hostPawn && playfield[2][1] === userPawn ){
