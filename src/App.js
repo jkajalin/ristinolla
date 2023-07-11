@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 // gamefield arrays filled with initial values
 let gamefield = [ 
@@ -18,17 +18,6 @@ const SquareButton = ( {handleClick, text} ) => (
     {text}
   </button>
 )
-
-/*
-const DrawPlayfield = ( {playfield} ) => {
-  //console.log(playfield)
-  if(playfield){
-    return playfield.map( (p,i) => <div key={i}> {p[0]}, {p[1]}, {p[2]} </div> )
-  }else{
-    return ''
-  }  
-}
-*/
 
 const ButtonGamefield = ( {handleMove, playfield} ) => {
   
@@ -65,6 +54,18 @@ const GameBoard = ( { playfield, handleMove } ) => {
 
 }
 
+/*
+* IC: winner != null
+* FC: returns JSX represantation of winner
+*/
+const WinnerDisplay = ( {winner} ) => {
+  return <div id='winnerDisplay' >Winner is {winner} !</div>
+}
+
+const MessageDisplay = ( { message } ) => {
+  return <div id='messageDisplay' > {message} </div>
+}
+
 const App = () => {
 
   const [ userPawn, setUserPawn ] = useState('')
@@ -76,21 +77,6 @@ const App = () => {
   
   let newMovesHistory = []  
   let hostTurn = false  
-
-  const [ count, setCount ] = useState(0)
-
-  useEffect( () =>{
-    setCount( count+1 )
-    if(winner){
-      console.log( 'winner is ', winner )
-      //setMsg('winner is ', winner )
-      //alert('Winner is ', winner)
-    }
-    
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playfield, winner, moveHistory])
-
-  console.log('count',count)
   
   const setCross = () => {
     setUserPawn('x')
@@ -112,18 +98,24 @@ const App = () => {
   */
   const setHostTurn = async ( b ) => {
     hostTurn = b
-    console.log('set host turn: ', hostTurn)
+    //console.log('set host turn: ', hostTurn)
+  }
+
+  /*
+  * IC: message != null && message instanceof String
+  */
+  const setTempMessage = async ( message ) => {
+    setMsg(message)
+    console.log('Message: ', message)
+    setTimeout( () => setMsg(''), 4000)
   }
 
   const saveNewMovesHistory = async ( h ) => {
     newMovesHistory=h
-    //setMoveHistory( h )
   } 
 
-  //const getHistory = () => newMovesHistory
-
   const updateGamefield = async () => {
-    console.log(`playfield:` ,String(playfield))
+    console.log( `playfield:` ,String(playfield) )
     gamefield = playfield    
   }
 
@@ -139,10 +131,9 @@ const App = () => {
     await updateGamefield()
 
     const newplayfield = gamefield.slice()
-    if( String(playfield[i1][i2]) === 'x' || String(playfield[i1][i2]) === '0'){
-      console.log(`ruutu varattu`)      
 
-    }else{
+    if( String( playfield[i1][i2] ) !== 'x' && String( playfield[i1][i2] ) !== '0' ){
+      
       console.log(`ruutu vapaa`)
       //newplayfield[i1][i2]= userPawn
       newplayfield[i1][i2]= pawn
@@ -153,26 +144,23 @@ const App = () => {
         await setHostTurn(false)
       }
 
-      // setMoveHistory( [ ...moveHistory, [i1,i2, pawn] ])      
-      // setMoveHistory( moveHistory.concat([[i1,i2, pawn]]) )
-      // await setHistory( history.concat([[i1,i2, pawn]]) )      
-      // setMoveHistory( history.concat([[i1,i2, pawn]]) )
-
-      //history= history.concat([[i1,i2, pawn]])
-      console.log('NewMovesHistory berofe: ', String(newMovesHistory))      
+      //console.log('NewMovesHistory berofe: ', String(newMovesHistory))      
       await saveNewMovesHistory( newMovesHistory.concat([[i1,i2, pawn]]) ) // this works    
 
-      console.log(`move ${gamefield[i1][i2]} to`, i1, i2 )
-      console.log('NewMoves History:', String(newMovesHistory) )
-      
-    }  
-    console.log('MoveHistory Before:', String(moveHistory) )
+      //console.log(`move ${gamefield[i1][i2]} to`, i1, i2 )
+      //console.log('NewMoves History:', String(newMovesHistory) )      
+
+    }else{
+      console.log(`ruutu varattu`)
+    }
+
+    //console.log('MoveHistory Before:', String(moveHistory) )
     //setMoveHistory( newMovesHistory.concat(moveHistory)  ) // this works \ o /
-    setMoveHistory( moveHistory.concat(newMovesHistory) )
+    setMoveHistory( moveHistory.concat(newMovesHistory) ) // concat move history in order
     
     setPlayfield( newplayfield )
-    console.log('NewMoves History, again:', String(newMovesHistory) )
-    console.log('MoveHistory again:', String(moveHistory) )
+    //console.log('NewMoves History, again:', String(newMovesHistory) )
+    //console.log('MoveHistory again:', String(moveHistory) )
   }
 
   const checkWinnerLines = async () => {
@@ -232,19 +220,19 @@ const App = () => {
         await hasTwoInLine()
         // check history length
         if( moveHistory.length >= 8 ){
-          console.log('Game Over! Refresh page to start new game')
-          alert('Game Over! Refresh page to start new game')
+          
+          await setTempMessage('Game Over!')
         }
       }else{
+
         setMsg('winner:', winner)
         alert('winner:', winner)
       }
 
       await checkWinnerLines()
-    }  
-    
+    } 
      
-    console.log('updated gamefield: ', String(gamefield) )
+    //console.log('updated gamefield: ', String(gamefield) )
   }
 
   /*
@@ -253,32 +241,31 @@ const App = () => {
   */
   const hasTwoInLine = async () => {
     
-    console.log('handTwoInLine, hostTurn:', isHostTurn() )
-    let linecordinates = ['']
-    let isMiddleFree = false
+    //console.log('handTwoInLine, hostTurn:', isHostTurn() )
+    //let linecordinates = ['']    
 
-    console.log('rows')
     // rows    
     // row 1
     // isHostTurn() &&    
     if( isHostTurn() && ( playfield[0][0] === userPawn || playfield[0][2]===userPawn ) ){
       //console.log('first line')
-      linecordinates = [0,0,0,2]
-      console.log('linecordinates: ', String( linecordinates ))
+      //linecordinates = [0,0,0,2]
+      //console.log('linecordinates: ', String( linecordinates ))
 
       if( playfield[0][0] === playfield[0][2] || playfield[0][0] === playfield[0][1] || playfield[0][1] === playfield[0][2]){
         
-        if( playfield[0][0] === playfield[0][2] ){
-          isMiddleFree = true
-          //moveHost(0,1)
+        if( playfield[0][0] === playfield[0][2] ){          
+          
           if( isHostTurn() ){
             console.log('first row middle')
             await moveHost(0,1)
           }
         }
+        /*
         if( isHostTurn() && playfield[0][1] !== userPawn ){
           //moveHost(0,1)
         }
+        */
         if( isHostTurn() && playfield[0][0] === userPawn && playfield[0][1] === userPawn){
           await moveHost( 0, 2 )
         }
@@ -299,13 +286,13 @@ const App = () => {
     // if( isHostTurn() && ( playfield[1][0]===userPawn || playfield[1][2]===userPawn ) && ( playfield[1][0] === playfield[1][2] || playfield[1][0] === playfield[1][1] || playfield[1][1] === playfield[1][2]) )
     if( isHostTurn() && ( playfield[1][0]===userPawn || playfield[1][2]===userPawn )  ){
       
-      linecordinates = [1,0,1,2]
-      console.log('linecordinates: ', String( linecordinates ))
+      //linecordinates = [1,0,1,2]
+      //console.log('linecordinates: ', String( linecordinates ))
 
       if( playfield[1][0] === playfield[1][2] || playfield[1][0] === playfield[1][1] || playfield[1][1] === playfield[1][2] ){
 
         if( playfield[1][0] === playfield[1][2] ){
-          isMiddleFree = true
+          
           if( isHostTurn() ){
             await moveHost(1,1)
           }
@@ -316,19 +303,18 @@ const App = () => {
         if( isHostTurn() && playfield[1][1] === userPawn && playfield[1][0] === userPawn ){
           await moveHost( 1, 2 )
         }
-      }
-      //await moveHost(1,1)
+      }      
     }        
     // row 3
     if( isHostTurn() && ( playfield[2][0] === userPawn || playfield[2][2] === userPawn )  ){
       
-      linecordinates = [2,0,2,2]
-      console.log('linecordinates: ', String( linecordinates ))
+      //linecordinates = [2,0,2,2]
+      //console.log('linecordinates: ', String( linecordinates ))
       
       if( playfield[2][0] === playfield[2][2] || playfield[2][0] === playfield[2][1] || playfield[2][1] === playfield[2][2] ){
 
         if( playfield[2][0] === playfield[2][2] ){
-          isMiddleFree = true
+          
           if( isHostTurn() ){
             await moveHost(2,1)
           }          
@@ -342,33 +328,37 @@ const App = () => {
       if( isHostTurn() && moveHistory.length <2){
         await moveHost( 1, 1 )
       } 
-    }
-    console.log('columns')
+    }    
     // columns
     // column 1
     if( isHostTurn() && ( playfield[0][0] === userPawn || playfield[2][0]===userPawn )  ){
       
-      linecordinates = [0,0,2,0]
-      console.log('linecordinates: ', String( linecordinates ))
+      //linecordinates = [0,0,2,0]
+      //console.log('linecordinates: ', String( linecordinates ))
 
       if( ( playfield[0][0] === userPawn || playfield[2][0]===userPawn ) && ( playfield[0][0] === playfield[2][0] || playfield[0][0] === playfield[1][0] || playfield[1][0] === playfield[2][0] ) ){
 
         if( playfield[0][0] === playfield[2][0] ){
-          isMiddleFree = true
+          
           if( isHostTurn() ){
             await moveHost(1,0)
           }
         }
         
         if( isHostTurn() && playfield[0][0] !== userPawn && playfield[1][1] !== userPawn  ){
-          console.log('depends')
+          
           await moveHost(0,0)          
         }
         // is this me or what. its not even monday. idiot proofing...
         if( isHostTurn() && playfield[0][0] === userPawn && playfield[0][1] === userPawn ){
-          console.log('depends 2,0')
+          
           await moveHost(2,0) 
         }
+
+        if( isHostTurn() && playfield[0][0] === userPawn && playfield[1][0] === userPawn ){
+          await moveHost(2,0) 
+        }
+
       }
 
     }
@@ -376,13 +366,13 @@ const App = () => {
     // if( isHostTurn() && ( playfield[0][1]===userPawn || playfield[2][1]===userPawn ) && ( playfield[0][1] === playfield[2][1] || playfield[0][1] === playfield[1][1] || playfield[1][1] === playfield[2][1] ) )
     if( isHostTurn() && ( playfield[0][1]===userPawn || playfield[2][1]===userPawn ) ){
       
-      linecordinates = [0,1,2,1]
-      console.log('linecordinates: ', String( linecordinates ))
+      //linecordinates = [0,1,2,1]
+      //console.log('linecordinates: ', String( linecordinates ))
 
       if( playfield[0][1] === playfield[2][1] || playfield[0][1] === playfield[1][1] || playfield[1][1] === playfield[2][1] ){
 
         if( playfield[0][1] === playfield[2][1] ){
-          isMiddleFree = true
+          
           if( isHostTurn() ){
             await moveHost(1,1)
           }
@@ -403,13 +393,13 @@ const App = () => {
     // column 3
     if( isHostTurn() && ( playfield[0][2] === userPawn || playfield[2][2] === userPawn ) ){
       
-      linecordinates = [0,2,2,2]
-      console.log('linecordinates: ', String( linecordinates ))
+      //linecordinates = [0,2,2,2]
+      //console.log('linecordinates: ', String( linecordinates ))
 
       if( playfield[0][2] === playfield[2][2] || playfield[0][2] === playfield[1][2] || playfield[1][2] === playfield[2][2]  ){
         
         if( playfield[0][2] === playfield[2][2] ){
-          isMiddleFree = true
+          
           if( isHostTurn() ){
             await moveHost(1,2)
           }
@@ -426,7 +416,7 @@ const App = () => {
         
       }
     }else{
-      console.log('last column else')
+      //console.log('last column else')
       if( isHostTurn() && playfield[1][2] === userPawn ){
         await moveHost( 0, 2 )
       }else(
@@ -434,17 +424,15 @@ const App = () => {
       ) 
     }
 
-    // crossing lines // no any effect with additional definitions
-    //
-    console.log('cross lines')    
+    // crossing lines
     //( playfield[0][0] === userPawn || playfield[2][2] === userPawn ) &&
     if( isHostTurn() && ( playfield[0][0] === userPawn || playfield[2][2] === userPawn ) && ( playfield[0][0] === playfield[2][2] || playfield[0][0] === playfield[1][1] || playfield[1][1] === playfield[2][2]) ){
       
-      linecordinates = [0,0,2,2]
-      console.log('linecordinates: ', String( linecordinates ))
+      //linecordinates = [0,0,2,2]
+      //console.log('linecordinates: ', String( linecordinates ))
 
       if( playfield[0][0] === playfield[2][2] ){
-        isMiddleFree = true
+        
         if( isHostTurn() ){
           await moveHost(1,1)
         }        
@@ -459,12 +447,12 @@ const App = () => {
     //     if( isHostTurn() && ( playfield[0][2] === userPawn || playfield[2][0] === userPawn ) && ( playfield[0][2] === playfield[2][0] || playfield[0][2] === playfield[1][1] || playfield[1][1] === playfield[2][0] ) )
     if( isHostTurn() && ( playfield[0][2] === userPawn || playfield[2][0] === userPawn )  ){
       
-      linecordinates = [0,2,2,0]
-      console.log('linecordinates: ', String( linecordinates ))
+      //linecordinates = [0,2,2,0]
+      //console.log('linecordinates: ', String( linecordinates ))
 
       if( playfield[0][2] === playfield[2][0] || playfield[0][2] === playfield[1][1] || playfield[1][1] === playfield[2][0]  ){
         if( playfield[0][2] === playfield[2][0] ){
-          isMiddleFree = true        
+                  
           if( isHostTurn() ){
             await moveHost(1,1)
           }
@@ -491,14 +479,12 @@ const App = () => {
     }
     // row 2 random case
     if ( isHostTurn() && ( playfield[1][1]===userPawn ) && playfield[1][0] === playfield[1][2] && playfield[2][2]===hostPawn && playfield[1][2] !== userPawn ){
-      console.log('row 2 random case')
+      //console.log('row 2 random case')
       await moveHost( 1, 2 )
     }
 
     //console.log('linecordinates: ', String( linecordinates ))
-    if(isMiddleFree){
-      console.log('middle is free for last line, place your bet')
-    }    
+
   }
   
   const moveHost =  async ( p1, p2 ) => {
@@ -520,14 +506,15 @@ const App = () => {
     setWinner('')
     setHostTurn(false)
     setUserPawn('')
-    setHostPawn('') 
+    setHostPawn('')
   }
   
   return (
-    <div>      
-      <p>count: {count} </p>
+    <div>
+      { !msg? '' : <MessageDisplay message={msg} />} 
+      { !winner? '' : <WinnerDisplay winner={winner} />}
+
       <GameHistory gameHistory={moveHistory} />
-       
 
       { !userPawn? <div>
           <p>'Valitse pelimerkki'</p>        
@@ -541,9 +528,11 @@ const App = () => {
         </div>
         
       }
+      
       <GameBoard playfield={playfield} handleMove={handleMove} />
       <br />
       <Button handleClick={ () => initNewGame() } text={'Restart game'} />
+
     </div>
   );
 }

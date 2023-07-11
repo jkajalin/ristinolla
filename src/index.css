@@ -32,6 +32,19 @@ button {
   line-height: 30px;
 }
 
-.row{
+.row {
   height: 36px;
+}
+
+#winnerDisplay {
+  display: flex;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+#messageDisplay {
+  background: greenyellow;
+  color: black;
+  border: 1px dotted greenyellow;
 }
