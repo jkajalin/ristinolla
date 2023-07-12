@@ -23,8 +23,7 @@ const ButtonGamefield = ( {handleMove, playfield} ) => {
   
   return <>  
   { !playfield ? 'buttonfield - loading...' : 
-    <>
-      <p>Pelikenttä</p>
+    <>      
       <div>
         <div className="row"><SquareButton handleClick={ () => handleMove( 0, 0 ) } text={playfield[0][0]} /><SquareButton handleClick={ () => handleMove( 0, 1 ) } text={playfield[0][1]} /><SquareButton handleClick={ () => handleMove( 0, 2 ) } text={playfield[0][2]} /></div>
         <div className="row"><SquareButton handleClick={ () => handleMove( 1, 0 ) } text={playfield[1][0]} /><SquareButton handleClick={ () => handleMove( 1, 1 ) } text={playfield[1][1]} /><SquareButton handleClick={ () => handleMove( 1, 2 ) } text={playfield[1][2]} /></div>
@@ -55,13 +54,16 @@ const GameBoard = ( { playfield, handleMove } ) => {
 }
 
 /*
-* IC: winner != null
+* IC: winner != null && winner instanceof String
 * FC: returns JSX represantation of winner
 */
 const WinnerDisplay = ( {winner} ) => {
   return <div id='winnerDisplay' >Winner is {winner} !</div>
 }
 
+/*
+* message != null && message instanceof String
+*/
 const MessageDisplay = ( { message } ) => {
   return <div id='messageDisplay' > {message} </div>
 }
@@ -78,11 +80,12 @@ const App = () => {
   let newMovesHistory = []  
   let hostTurn = false  
   
+  // Set user pawn as cross & host pawn as zero
   const setCross = () => {
     setUserPawn('x')
-    setHostPawn('0')    
+    setHostPawn('0')        
   }
-
+  // Set userpawn as zero & host pawn as cross
   const setZero = () => {
     setUserPawn('0')
     setHostPawn('x')    
@@ -110,23 +113,31 @@ const App = () => {
     setTimeout( () => setMsg(''), 4000)
   }
 
+  /*
+  * Save temporary new moves before adding to move history
+  * IC: h != null
+  * FC: newMovesHistory contains newest moves in array before adding to move history
+  */
   const saveNewMovesHistory = async ( h ) => {
     newMovesHistory=h
   } 
 
+  /*
+  * updates current situation of playfield to gamefield arrays
+  */
   const updateGamefield = async () => {
-    console.log( `playfield:` ,String(playfield) )
+    //console.log( `playfield:` ,String(playfield) )
     gamefield = playfield    
   }
 
   /*
-  * Places move of current player and handle history logic
+  * Places move of current player and handle history and some game logic
   * IC: ( i1 <=2 && i2 <=2 ) && pawn != null
   *    
   */
 
   const move = async (  i1 , i2, pawn ) => {
-    console.log(`user pawn ${userPawn}`)    
+    //console.log(`user pawn ${userPawn}`)
 
     await updateGamefield()
 
@@ -134,10 +145,10 @@ const App = () => {
 
     if( String( playfield[i1][i2] ) !== 'x' && String( playfield[i1][i2] ) !== '0' ){
       
-      console.log(`ruutu vapaa`)
-      //newplayfield[i1][i2]= userPawn
+      //console.log(`ruutu vapaa`)      
       newplayfield[i1][i2]= pawn
       
+      // updates next turn logic
       if(pawn === userPawn){
         await setHostTurn(true)                
       }else{            
@@ -145,20 +156,25 @@ const App = () => {
       }
 
       //console.log('NewMovesHistory berofe: ', String(newMovesHistory))      
-      await saveNewMovesHistory( newMovesHistory.concat([[i1,i2, pawn]]) ) // this works    
+      await saveNewMovesHistory( newMovesHistory.concat([[i1,i2, pawn]]) ) 
 
       //console.log(`move ${gamefield[i1][i2]} to`, i1, i2 )
       //console.log('NewMoves History:', String(newMovesHistory) )      
 
-    }else{
+    }
+    /*
+    else{
       console.log(`ruutu varattu`)
     }
+    */
 
     //console.log('MoveHistory Before:', String(moveHistory) )
-    //setMoveHistory( newMovesHistory.concat(moveHistory)  ) // this works \ o /
-    setMoveHistory( moveHistory.concat(newMovesHistory) ) // concat move history in order
+
+    // concat move history in order moves made
+    setMoveHistory( moveHistory.concat(newMovesHistory) ) 
     
     setPlayfield( newplayfield )
+    
     //console.log('NewMoves History, again:', String(newMovesHistory) )
     //console.log('MoveHistory again:', String(moveHistory) )
   }
@@ -209,7 +225,7 @@ const App = () => {
 
   const handleMove = async (  i1 , i2  ) => {
     
-    console.log('handlemove, hostTurn:', isHostTurn() )
+    //console.log('handlemove, hostTurn:', isHostTurn() )
     if ( userPawn && !winner){
       await move( i1, i2, userPawn )
       
@@ -236,7 +252,7 @@ const App = () => {
   }
 
   /*
-  * does line has two matching pawns // some host player move logic
+  * does line has two matching pawns // host player move logic
   * IC: userPawn != null
   */
   const hasTwoInLine = async () => {
@@ -257,7 +273,7 @@ const App = () => {
         if( playfield[0][0] === playfield[0][2] ){          
           
           if( isHostTurn() ){
-            console.log('first row middle')
+            //console.log('first row middle')
             await moveHost(0,1)
           }
         }
@@ -275,7 +291,7 @@ const App = () => {
       }else{
         
         if( isHostTurn() && moveHistory.length < 3){
-          console.log('first row else')
+          //console.log('first row else')
           await moveHost(0,1)
         }        
         
@@ -489,10 +505,8 @@ const App = () => {
   
   const moveHost =  async ( p1, p2 ) => {
     if( hostPawn && isHostTurn() ){
-      await move( p1, p2, hostPawn)      
-    }else(
-      console.log('aint host turn')
-    )
+      await move( p1, p2, hostPawn )      
+    }    
   }
 
   /*
@@ -510,21 +524,25 @@ const App = () => {
   }
   
   return (
-    <div>
+    <div id='game'>
       { !msg? '' : <MessageDisplay message={msg} />} 
       { !winner? '' : <WinnerDisplay winner={winner} />}
 
       <GameHistory gameHistory={moveHistory} />
 
       { !userPawn? <div>
-          <p>'Valitse pelimerkki'</p>        
-          <Button handleClick={ () => setCross() } text={'x'} />
-          <Button handleClick={ () => setZero() } text={'0'} />  
+          <p>Valitse pelimerkki</p>
+          <p>
+            <Button handleClick={ () => setCross() } text={'x'} />
+            <Button handleClick={ () => setZero() } text={'0'} />
+          </p> 
         </div>
         :
         <div>
           <div>Pelaaja pelimerkki: {userPawn}</div>
           <div>Koneen pelimerkki: {hostPawn}</div>
+                    
+          <p>Pelaaja {userPawn} aloittaa pelin</p>        
         </div>
         
       }

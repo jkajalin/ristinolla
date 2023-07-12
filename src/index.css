@@ -48,3 +48,7 @@ button {
   color: black;
   border: 1px dotted greenyellow;
 }
+
+#game {
+  padding: 10px;
+}
