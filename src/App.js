@@ -109,7 +109,7 @@ const App = () => {
   */
   const setTempMessage = async ( message ) => {
     setMsg(message)
-    console.log('Message: ', message)
+    //console.log('Message: ', message)
     setTimeout( () => setMsg(''), 4000)
   }
 
