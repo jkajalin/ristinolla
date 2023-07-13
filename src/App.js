@@ -319,6 +319,12 @@ const App = () => {
         if( isHostTurn() && playfield[1][1] === userPawn && playfield[1][0] === userPawn ){
           await moveHost( 1, 2 )
         }
+        // random case
+        if( isHostTurn && playfield[1][1] === playfield[1][2] && playfield[1][0] !== userPawn && playfield[0][0] === userPawn && playfield[2][0] === userPawn){
+          setTempMessage('Tasapeli')
+          await moveHost( 0, 1 )
+        }
+
       }      
     }        
     // row 3
