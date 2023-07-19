@@ -1,4 +1,9 @@
 import { useState } from "react";
+import Button from "./components/Button";
+import GameHistory from "./components/GameHistory";
+import GameBoard from "./components/GameBoard";
+import WinnerDisplay from "./components/WinnerDisplay";
+import MessageDisplay from "./components/MessageDisplay";
 
 // gamefield arrays filled with initial values
 let gamefield = [ 
@@ -6,67 +11,6 @@ let gamefield = [
   Array(3).fill(null),
   Array(3).fill(null) 
 ]
-
-const Button = ( {handleClick, text} ) => (
-  <button onClick={ handleClick }>
-    {text}
-  </button>
-)
-
-const SquareButton = ( {handleClick, text} ) => (
-  <button onClick={ handleClick } className="squareBtn">
-    {text}
-  </button>
-)
-
-const ButtonGamefield = ( {handleMove, playfield} ) => {
-  
-  return <>  
-  { !playfield ? 'buttonfield - loading...' : 
-    <>      
-      <div>
-        <div className="row"><SquareButton handleClick={ () => handleMove( 0, 0 ) } text={playfield[0][0]} /><SquareButton handleClick={ () => handleMove( 0, 1 ) } text={playfield[0][1]} /><SquareButton handleClick={ () => handleMove( 0, 2 ) } text={playfield[0][2]} /></div>
-        <div className="row"><SquareButton handleClick={ () => handleMove( 1, 0 ) } text={playfield[1][0]} /><SquareButton handleClick={ () => handleMove( 1, 1 ) } text={playfield[1][1]} /><SquareButton handleClick={ () => handleMove( 1, 2 ) } text={playfield[1][2]} /></div>
-        <div className="row"><SquareButton handleClick={ () => handleMove( 2, 0 ) } text={playfield[2][0]} /><SquareButton handleClick={ () => handleMove( 2, 1 ) } text={playfield[2][1]} /><SquareButton handleClick={ () => handleMove( 2, 2 ) } text={playfield[2][2]} /></div>    
-      </div>
-  </> 
-    }   
-      
-  </>
-}
-
-const GameHistory = ( { gameHistory } ) => {
-  return <div style={{float: "right"}}>{ !gameHistory? '' : gameHistory.map( ( p, i ) => <div key={i} > { p[0] }-{ p[1] }: { p[2] } ;  </div>  ) }</div>
-}
-
-const GameBoard = ( { playfield, handleMove } ) => {
-  
-  if( !playfield ) {
-    return 'loading...'
-  }else{
-    return (      
-      <>        
-        <ButtonGamefield handleMove={handleMove} playfield={playfield} />
-      </>
-    )
-  }
-
-}
-
-/*
-* IC: winner != null && winner instanceof String
-* FC: returns JSX represantation of winner
-*/
-const WinnerDisplay = ( {winner} ) => {
-  return <div id='winnerDisplay' >Winner is {winner} !</div>
-}
-
-/*
-* message != null && message instanceof String
-*/
-const MessageDisplay = ( { message } ) => {
-  return <div id='messageDisplay' > {message} </div>
-}
 
 const App = () => {
 
