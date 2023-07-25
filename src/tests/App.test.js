@@ -1,6 +1,6 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
-import { render, screen } from '@testing-library/react'
+import { getByText, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from '../App'
 
@@ -47,19 +47,78 @@ describe('Ristinolla App test', function(){
 
     const user = userEvent.setup()    
 
+    // choosing paw
     const button = await screen.findByText('x')
     await user.click(button)
 
     const fieldbuttons = await screen.findAllByRole('button')
 
+    // confirming paw x is chosen
     const element = screen.getByText('Pelaaja x aloittaa pelin')
     expect(element).toBeDefined()
 
+    // first move
     await fieldbuttons[0].click()
+    
+    //const xbutton = await screen.findAllByRole('button', {value: 'x'} )
+    const xbutton = await screen.findAllByText('x')
 
-    const xbutton = await screen.findAllByRole('button', {value: 'x'} )
+    // confirming first move is made
+    //expect(xbutton).toBeDefined()
+    expect(xbutton).toHaveLength(1)
+  })
 
-    expect(xbutton).toBeDefined()
+  test('Game could be reseted by button', async () => {
+    
+    const mycontainer = render(<App />).container
+
+    const user = userEvent.setup()    
+
+    // reseting game // somehow there seems to be active values from previous tests
+    const restartbutton = await screen.findByText('Restart game')
+    await user.click(restartbutton)
+
+    // choosing paw
+    const button = await screen.findByText('x')
+    await user.click(button)
+
+    const fieldbuttons = await screen.findAllByRole('button')
+
+    // confirming paw x is chosen
+    const element = screen.getByText('Pelaaja x aloittaa pelin')
+    expect(element).toBeDefined()
+
+    // first move
+    await fieldbuttons[0].click()
+    
+    //const xbutton = await screen.findAllByRole('button', {value: 'x'} )
+    const xbutton = await screen.findAllByText('x')
+
+    // confirming first move is made
+    //expect(xbutton).toBeDefined()
+    expect(xbutton).toHaveLength(1)
+    
+
+    // reseting game
+    const restartbutton02 = await screen.findByText('Restart game')
+    await user.click(restartbutton02)
+
+    const element02 = await screen.findByText('Valitse pelimerkki')
+    expect(element02).toBeDefined()
+
+    
+    // eslint-disable-next-line testing-library/no-node-access
+    const gamerfield = mycontainer.querySelector('#buttongamefield')
+
+    // checking that gamefield is empty
+    const xfields = within(gamerfield).queryAllByText('x')
+
+    // eslint-disable-next-line testing-library/prefer-screen-queries
+    expect(xfields.length).toBe(0)
+
+    // eslint-disable-next-line testing-library/no-debugging-utils
+    //screen.debug(xfields)    
+
   })
  
 
