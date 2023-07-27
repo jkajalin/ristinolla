@@ -1,4 +1,4 @@
-import ButtonGamefield from "./ButtonGamefield"
+import ButtonGamefield from './ButtonGamefield'
 
 const GameBoard = ( { playfield, handleMove } ) => {
   

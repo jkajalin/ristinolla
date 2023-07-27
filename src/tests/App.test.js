@@ -1,6 +1,6 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
-import { getByText, render, screen, within } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from '../App'
 
@@ -107,16 +107,14 @@ describe('Ristinolla App test', function(){
     expect(element02).toBeDefined()
 
     
-    // eslint-disable-next-line testing-library/no-node-access
     const gamerfield = mycontainer.querySelector('#buttongamefield')
 
     // checking that gamefield is empty
     const xfields = within(gamerfield).queryAllByText('x')
 
-    // eslint-disable-next-line testing-library/prefer-screen-queries
+  
     expect(xfields.length).toBe(0)
 
-    // eslint-disable-next-line testing-library/no-debugging-utils
     //screen.debug(xfields)    
 
   })

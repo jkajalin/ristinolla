@@ -1,9 +1,9 @@
-import { useState } from "react";
-import Button from "./components/Button";
-import GameHistory from "./components/GameHistory";
-import GameBoard from "./components/GameBoard";
-import WinnerDisplay from "./components/WinnerDisplay";
-import MessageDisplay from "./components/MessageDisplay";
+import { useState } from 'react'
+import Button from './components/Button'
+import GameHistory from './components/GameHistory'
+import GameBoard from './components/GameBoard'
+import WinnerDisplay from './components/WinnerDisplay'
+import MessageDisplay from './components/MessageDisplay'
 
 // gamefield arrays filled with initial values
 let gamefield = [ 
@@ -125,11 +125,11 @@ const App = () => {
 
   const checkWinnerLines = async () => {
     // rows
-     if( playfield[0][0] && playfield[0][0] === playfield[0][1] && playfield[0][1] === playfield[0][2] ){
-        setWinner( String(playfield[0][0]) )
-        return winner
-     }
-     if( playfield[1][0] && playfield[1][0] === playfield[1][1] && playfield[1][1] === playfield[1][2] ){
+    if (playfield[0][0] && playfield[0][0] === playfield[0][1] && playfield[0][1] === playfield[0][2]) {
+      setWinner(String(playfield[0][0]))
+      return winner
+    }
+    if (playfield[1][0] && playfield[1][0] === playfield[1][1] && playfield[1][1] === playfield[1][2]) {
       setWinner( String(playfield[1][0]) )
       return winner
     }
@@ -481,20 +481,19 @@ const App = () => {
       <GameHistory gameHistory={moveHistory} />
 
       { !userPawn? <div>
-          <p>Valitse pelimerkki</p>
-          <p>
-            <Button handleClick={ () => setCross() } text={'x'} />
-            <Button handleClick={ () => setZero() } text={'0'} />
-          </p> 
-        </div>
+        <p>Valitse pelimerkki</p>
+        <p>
+          <Button handleClick={() => setCross()} text={'x'} />
+          <Button handleClick={() => setZero()} text={'0'} />
+        </p>
+      </div>
         :
         <div>
           <div>Pelaaja pelimerkki: {userPawn}</div>
           <div>Koneen pelimerkki: {hostPawn}</div>
-                    
-          <p>Pelaaja {userPawn} aloittaa pelin</p>        
-        </div>
-        
+
+          <p>Pelaaja {userPawn} aloittaa pelin</p>
+        </div>        
       }
       
       <GameBoard playfield={playfield} handleMove={handleMove} />
@@ -502,7 +501,7 @@ const App = () => {
       <Button handleClick={ () => initNewGame() } text={'Restart game'} />
 
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
